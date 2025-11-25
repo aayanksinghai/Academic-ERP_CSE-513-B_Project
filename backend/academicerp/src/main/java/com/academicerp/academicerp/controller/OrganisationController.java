@@ -29,7 +29,7 @@ public class OrganisationController {
     private final OrganisationService organisationService;
     
     @PostMapping
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasRole('OUTREACH')")
     public ResponseEntity<?> createOrganisation(@Valid @RequestBody OrganisationRequestDto requestDto, Authentication authentication) {
         try {
             OrganisationResponseDto responseDto = organisationService.createOrganisation(requestDto);
@@ -42,7 +42,7 @@ public class OrganisationController {
     }
     
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasRole('OUTREACH')")
     public ResponseEntity<?> getOrganisationById(@PathVariable Long id, Authentication authentication) {
         try {
             OrganisationResponseDto responseDto = organisationService.getOrganisationById(id);
@@ -55,14 +55,14 @@ public class OrganisationController {
     }
     
     @GetMapping
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasRole('OUTREACH')")
     public ResponseEntity<List<OrganisationResponseDto>> getAllOrganisations(Authentication authentication) {
         List<OrganisationResponseDto> organisations = organisationService.getAllOrganisations();
         return ResponseEntity.ok(organisations);
     }
     
     @GetMapping("/paginated")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasRole('OUTREACH')")
     public ResponseEntity<Page<OrganisationResponseDto>> getAllOrganisationsPaginated(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -80,7 +80,7 @@ public class OrganisationController {
     }
     
     @GetMapping("/search")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasRole('OUTREACH')")
     public ResponseEntity<List<OrganisationResponseDto>> searchOrganisations(
             @RequestParam String searchTerm,
             Authentication authentication) {
@@ -89,7 +89,7 @@ public class OrganisationController {
     }
     
     @GetMapping("/search/name")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasRole('OUTREACH')")
     public ResponseEntity<List<OrganisationResponseDto>> findByNameContaining(
             @RequestParam String name,
             Authentication authentication) {
@@ -98,7 +98,7 @@ public class OrganisationController {
     }
     
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasRole('OUTREACH')")
     public ResponseEntity<?> updateOrganisation(
             @PathVariable Long id,
             @Valid @RequestBody OrganisationUpdateDto updateDto,
@@ -114,7 +114,7 @@ public class OrganisationController {
     }
     
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasRole('OUTREACH')")
     public ResponseEntity<?> deleteOrganisation(@PathVariable Long id, Authentication authentication) {
         try {
             organisationService.deleteOrganisation(id);
@@ -129,7 +129,7 @@ public class OrganisationController {
     }
     
     @GetMapping("/{id}/exists")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasRole('OUTREACH')")
     public ResponseEntity<Map<String, Boolean>> checkOrganisationExists(@PathVariable Long id, Authentication authentication) {
         boolean exists = organisationService.existsById(id);
         Map<String, Boolean> response = new HashMap<>();
@@ -138,7 +138,7 @@ public class OrganisationController {
     }
     
     @GetMapping("/check-email")
-    @PreAuthorize("hasRole('EMPLOYEE')")
+    @PreAuthorize("hasRole('OUTREACH')")
     public ResponseEntity<Map<String, Boolean>> checkEmailExists(@RequestParam String email, Authentication authentication) {
         boolean exists = organisationService.existsByEmail(email);
         Map<String, Boolean> response = new HashMap<>();

@@ -41,6 +41,13 @@ public class AuthController {
                 return ResponseEntity.status(403).body(error);
             }
             
+            // Check if user is from Outreach department for Organisation access
+            if (!employeeService.isOutreachEmployee(email)) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Access denied. Only Outreach department employees can access Organisation operations.");
+                return ResponseEntity.status(403).body(error);
+            }
+            
             // Create or update employee record
             Employee employee = employeeService.createEmployeeIfNotExists(email, firstName, lastName);
             
@@ -81,6 +88,12 @@ public class AuthController {
             return ResponseEntity.status(403).body(error);
         }
         
+        if (!employeeService.isOutreachEmployee(email)) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Access denied. Only Outreach department employees can access Organisation operations.");
+            return ResponseEntity.status(403).body(error);
+        }
+        
         return ResponseEntity.ok(principal.getAttributes());
     }
     
@@ -95,12 +108,14 @@ public class AuthController {
         
         try {
             String email = jwtService.extractUsername(token);
-            boolean isValid = jwtService.isTokenValid(token, email) && employeeService.isValidEmployee(email);
+            boolean isValid = jwtService.isTokenValid(token, email) && employeeService.isValidEmployee(email) && employeeService.isOutreachEmployee(email);
             
             Map<String, Object> response = new HashMap<>();
             response.put("valid", isValid);
             if (isValid) {
                 response.put("email", email);
+            } else if (employeeService.isValidEmployee(email) && !employeeService.isOutreachEmployee(email)) {
+                response.put("error", "Access denied. Only Outreach department employees can access Organisation operations.");
             }
             
             return ResponseEntity.ok(response);
@@ -126,6 +141,13 @@ public class AuthController {
         if (!employeeService.isValidEmployee(email)) {
             Map<String, String> error = new HashMap<>();
             error.put("error", "Access denied. Only registered employees can access this system.");
+            return ResponseEntity.status(403).body(error);
+        }
+        
+        // Check if user is from Outreach department
+        if (!employeeService.isOutreachEmployee(email)) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Access denied. Only Outreach department employees can access Organisation operations.");
             return ResponseEntity.status(403).body(error);
         }
         

@@ -21,6 +21,11 @@ public class EmployeeService {
         return employeeRepository.existsByEmail(email);
     }
     
+    public boolean isOutreachEmployee(String email) {
+        Optional<Employee> employee = employeeRepository.findByEmail(email);
+        return employee.isPresent() && "Outreach".equalsIgnoreCase(employee.get().getDepartment());
+    }
+    
     public Employee createEmployeeIfNotExists(String email, String firstName, String lastName) {
         Optional<Employee> existingEmployee = employeeRepository.findByEmail(email);
         if (existingEmployee.isPresent()) {

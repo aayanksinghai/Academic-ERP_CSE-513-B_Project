@@ -32,7 +32,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/login/**").permitAll()
-                        .requestMatchers("/api/organisations/**").hasRole("EMPLOYEE")
+                        .requestMatchers("/api/organisations/**").hasRole("OUTREACH")
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

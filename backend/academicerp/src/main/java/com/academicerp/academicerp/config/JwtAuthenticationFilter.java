@@ -17,7 +17,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -53,10 +55,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             // Validate that the user is a valid employee
             if (employeeService.isValidEmployee(userEmail) && jwtService.isTokenValid(jwt, userEmail)) {
+                // Check if employee is from Outreach department for Organisation access
+                List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                authorities.add(new SimpleGrantedAuthority("ROLE_EMPLOYEE"));
+                
+                if (employeeService.isOutreachEmployee(userEmail)) {
+                    authorities.add(new SimpleGrantedAuthority("ROLE_OUTREACH"));
+                }
+                
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userEmail,
                         null,
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_EMPLOYEE"))
+                        authorities
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
