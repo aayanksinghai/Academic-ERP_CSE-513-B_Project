@@ -111,4 +111,32 @@ public class AuthController {
             return ResponseEntity.ok(response);
         }
     }
+    
+    // TEST ENDPOINT - Remove in production
+    @PostMapping("/generate-test-token")
+    public ResponseEntity<?> generateTestToken(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        if (email == null) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Email is required");
+            return ResponseEntity.badRequest().body(error);
+        }
+        
+        // Check if user is a valid employee
+        if (!employeeService.isValidEmployee(email)) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Access denied. Only registered employees can access this system.");
+            return ResponseEntity.status(403).body(error);
+        }
+        
+        // Generate JWT token
+        String token = jwtService.generateToken(email);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", token);
+        response.put("email", email);
+        response.put("message", "Test token generated successfully");
+        
+        return ResponseEntity.ok(response);
+    }
 }
