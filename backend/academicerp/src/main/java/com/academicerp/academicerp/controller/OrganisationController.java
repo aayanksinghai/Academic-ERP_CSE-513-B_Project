@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -27,7 +29,8 @@ public class OrganisationController {
     private final OrganisationService organisationService;
     
     @PostMapping
-    public ResponseEntity<?> createOrganisation(@Valid @RequestBody OrganisationRequestDto requestDto) {
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ResponseEntity<?> createOrganisation(@Valid @RequestBody OrganisationRequestDto requestDto, Authentication authentication) {
         try {
             OrganisationResponseDto responseDto = organisationService.createOrganisation(requestDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -39,7 +42,8 @@ public class OrganisationController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOrganisationById(@PathVariable Long id) {
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ResponseEntity<?> getOrganisationById(@PathVariable Long id, Authentication authentication) {
         try {
             OrganisationResponseDto responseDto = organisationService.getOrganisationById(id);
             return ResponseEntity.ok(responseDto);
@@ -51,17 +55,20 @@ public class OrganisationController {
     }
     
     @GetMapping
-    public ResponseEntity<List<OrganisationResponseDto>> getAllOrganisations() {
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ResponseEntity<List<OrganisationResponseDto>> getAllOrganisations(Authentication authentication) {
         List<OrganisationResponseDto> organisations = organisationService.getAllOrganisations();
         return ResponseEntity.ok(organisations);
     }
     
     @GetMapping("/paginated")
+    @PreAuthorize("hasRole('EMPLOYEE')")
     public ResponseEntity<Page<OrganisationResponseDto>> getAllOrganisationsPaginated(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDir) {
+            @RequestParam(defaultValue = "asc") String sortDir,
+            Authentication authentication) {
         
         Sort sort = sortDir.equalsIgnoreCase("desc") ? 
                 Sort.by(sortBy).descending() : 
@@ -73,23 +80,29 @@ public class OrganisationController {
     }
     
     @GetMapping("/search")
+    @PreAuthorize("hasRole('EMPLOYEE')")
     public ResponseEntity<List<OrganisationResponseDto>> searchOrganisations(
-            @RequestParam String searchTerm) {
+            @RequestParam String searchTerm,
+            Authentication authentication) {
         List<OrganisationResponseDto> organisations = organisationService.searchOrganisations(searchTerm);
         return ResponseEntity.ok(organisations);
     }
     
     @GetMapping("/search/name")
+    @PreAuthorize("hasRole('EMPLOYEE')")
     public ResponseEntity<List<OrganisationResponseDto>> findByNameContaining(
-            @RequestParam String name) {
+            @RequestParam String name,
+            Authentication authentication) {
         List<OrganisationResponseDto> organisations = organisationService.findByNameContaining(name);
         return ResponseEntity.ok(organisations);
     }
     
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('EMPLOYEE')")
     public ResponseEntity<?> updateOrganisation(
             @PathVariable Long id,
-            @Valid @RequestBody OrganisationUpdateDto updateDto) {
+            @Valid @RequestBody OrganisationUpdateDto updateDto,
+            Authentication authentication) {
         try {
             OrganisationResponseDto responseDto = organisationService.updateOrganisation(id, updateDto);
             return ResponseEntity.ok(responseDto);
@@ -101,7 +114,8 @@ public class OrganisationController {
     }
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOrganisation(@PathVariable Long id) {
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ResponseEntity<?> deleteOrganisation(@PathVariable Long id, Authentication authentication) {
         try {
             organisationService.deleteOrganisation(id);
             Map<String, String> response = new HashMap<>();
@@ -115,7 +129,8 @@ public class OrganisationController {
     }
     
     @GetMapping("/{id}/exists")
-    public ResponseEntity<Map<String, Boolean>> checkOrganisationExists(@PathVariable Long id) {
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ResponseEntity<Map<String, Boolean>> checkOrganisationExists(@PathVariable Long id, Authentication authentication) {
         boolean exists = organisationService.existsById(id);
         Map<String, Boolean> response = new HashMap<>();
         response.put("exists", Boolean.valueOf(exists));
@@ -123,7 +138,8 @@ public class OrganisationController {
     }
     
     @GetMapping("/check-email")
-    public ResponseEntity<Map<String, Boolean>> checkEmailExists(@RequestParam String email) {
+    @PreAuthorize("hasRole('EMPLOYEE')")
+    public ResponseEntity<Map<String, Boolean>> checkEmailExists(@RequestParam String email, Authentication authentication) {
         boolean exists = organisationService.existsByEmail(email);
         Map<String, Boolean> response = new HashMap<>();
         response.put("exists", Boolean.valueOf(exists));
