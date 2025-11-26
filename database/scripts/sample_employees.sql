@@ -10,4 +10,5 @@ INSERT INTO employees (first_name, last_name, email, title, department) VALUES
 
 -- Add your own Google email here to test OAuth authentication
 INSERT INTO employees (first_name, last_name, email, title, department) VALUES
-('Aayank', 'Singhai', 'aayanksinghai02@gmail.com', 'SDE', 'IT');
+('Aayank', 'Singhai', 'aayanksinghai02@gmail.com', 'SDE', 'Outreach');
+

@@ -8,7 +8,7 @@ import OrganisationList from './pages/OrganisationList'
 import OrganisationForm from './pages/OrganisationForm'
 import './App.css'
 
-const PrivateRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
+const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { token } = useAuth()
   if (!token) return <Navigate to="/login" replace />
   return children
@@ -29,9 +29,6 @@ const NavBar: React.FC = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
-            <Nav.Link href="/organisations" className="me-3">
-              <i className="bi bi-list me-1"></i>Organisations
-            </Nav.Link>
             <Button
               variant="outline-danger"
               size="sm"

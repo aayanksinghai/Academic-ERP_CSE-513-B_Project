@@ -81,6 +81,17 @@ export const OrganisationService = {
         })
         await handleResponse<void>(res)
     },
+
+    async search(searchTerm: string): Promise<Organisation[]> {
+        const res = await fetch(`${BASE}/search?searchTerm=${encodeURIComponent(searchTerm)}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getAuthHeader(),
+            },
+        })
+        return handleResponse<Organisation[]>(res)
+    },
 }
 
 export default OrganisationService
