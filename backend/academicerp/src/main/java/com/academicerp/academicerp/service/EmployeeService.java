@@ -32,10 +32,14 @@ public class EmployeeService {
             return existingEmployee.get();
         }
         
+        // Provide default values if firstName or lastName are null
+        String safeFirstName = (firstName != null && !firstName.trim().isEmpty()) ? firstName : "Unknown";
+        String safeLastName = (lastName != null && !lastName.trim().isEmpty()) ? lastName : "User";
+        
         Employee newEmployee = Employee.builder()
                 .email(email)
-                .firstName(firstName)
-                .lastName(lastName)
+                .firstName(safeFirstName)
+                .lastName(safeLastName)
                 .build();
         
         return employeeRepository.save(newEmployee);
