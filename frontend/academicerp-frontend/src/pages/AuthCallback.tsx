@@ -5,7 +5,7 @@ import { useAuth } from '../auth/AuthContext'
 const AuthCallback: React.FC = () => {
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
-    const { setToken } = useAuth()
+    const { setToken, setIsOutreach, setUserEmail } = useAuth()
     const [error, setError] = useState<string | null>(null)
     const [retrying, setRetrying] = useState(false)
     const BACKEND_URL = (import.meta.env.VITE_BACKEND_URL as string) || 'http://localhost:8080'
@@ -16,11 +16,43 @@ const AuthCallback: React.FC = () => {
             const code = searchParams.get('code')
             const state = searchParams.get('state')
             const errorParam = searchParams.get('error')
+            const isOutreachParam = searchParams.get('isOutreach')
 
             if (token) {
                 // Token provided directly by backend
                 setToken(token)
-                navigate('/organisations')
+                
+                // Parse isOutreach parameter
+                const isOutreach = isOutreachParam === 'true'
+                console.log('isOutreachParam:', isOutreachParam, 'isOutreach:', isOutreach)
+                setIsOutreach(isOutreach)
+                
+                // Fetch user info to get email
+                try {
+                    const response = await fetch(`${BACKEND_URL}/api/auth/user-info`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token }),
+                    })
+                    
+                    if (response.ok) {
+                        const userData = await response.json()
+                        console.log('User data:', userData)
+                        setUserEmail(userData.email)
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch user info:', err)
+                }
+                
+                // Navigate based on department
+                console.log('Navigating - isOutreach:', isOutreach)
+                if (isOutreach) {
+                    console.log('Navigating to /organisations')
+                    navigate('/organisations')
+                } else {
+                    console.log('Navigating to /welcome')
+                    navigate('/welcome')
+                }
             } else if (code && state) {
                 // Google OAuth code received - try to exchange it for a token
                 setRetrying(true)
@@ -79,7 +111,7 @@ const AuthCallback: React.FC = () => {
         }
 
         handleCallback()
-    }, [searchParams, setToken, navigate, BACKEND_URL])
+    }, [searchParams, setToken, setIsOutreach, setUserEmail, navigate, BACKEND_URL])
 
     if (error) {
         return (

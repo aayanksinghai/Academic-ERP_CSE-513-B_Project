@@ -34,6 +34,7 @@ public class SecurityConfig {
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/login/**").permitAll()
                         .requestMatchers("/api/organisations/**").hasRole("OUTREACH")
+                        .requestMatchers("/api/auth/user-info").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

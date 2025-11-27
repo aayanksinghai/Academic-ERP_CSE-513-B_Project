@@ -6,11 +6,41 @@ import Login from './pages/Login'
 import AuthCallback from './pages/AuthCallback'
 import OrganisationList from './pages/OrganisationList'
 import OrganisationForm from './pages/OrganisationForm'
+import RestrictedWelcome from './pages/RestrictedWelcome'
 import './App.css'
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { token } = useAuth()
   if (!token) return <Navigate to="/login" replace />
+  return children
+}
+
+const OutreachRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { token, isOutreach } = useAuth()
+  console.log('OutreachRoute - token:', token, 'isOutreach:', isOutreach)
+  if (!token) return <Navigate to="/login" replace />
+  if (isOutreach === null) {
+    // Still loading, show loading spinner
+    return (
+      <div style={{ padding: '40px', textAlign: 'center' }}>
+        <div style={{
+          display: 'inline-block',
+          width: '40px',
+          height: '40px',
+          border: '4px solid #e6eef6',
+          borderTop: '4px solid #1976d2',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <p>Loading...</p>
+      </div>
+    )
+  }
+  if (isOutreach === false) {
+    console.log('User is not Outreach, redirecting to /welcome')
+    return <Navigate to="/welcome" replace />
+  }
   return children
 }
 
@@ -56,18 +86,19 @@ function App() {
           <Route path="/" element={<Navigate to="/organisations" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/welcome" element={<PrivateRoute>{<RestrictedWelcome />}</PrivateRoute>} />
 
           <Route
             path="/organisations"
-            element={<PrivateRoute>{<OrganisationList />}</PrivateRoute>}
+            element={<OutreachRoute>{<OrganisationList />}</OutreachRoute>}
           />
           <Route
             path="/organisations/new"
-            element={<PrivateRoute>{<OrganisationForm />}</PrivateRoute>}
+            element={<OutreachRoute>{<OrganisationForm />}</OutreachRoute>}
           />
           <Route
             path="/organisations/:id/edit"
-            element={<PrivateRoute>{<OrganisationForm />}</PrivateRoute>}
+            element={<OutreachRoute>{<OrganisationForm />}</OutreachRoute>}
           />
 
           <Route path="*" element={<Navigate to="/organisations" replace />} />

@@ -45,29 +45,23 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
             }
             
             // Check if user is a valid employee
-            if (!employeeService.isValidEmployee(email)) {
-                log.error("User {} is not a registered employee", email);
-                redirectToFrontendWithError(response, "not_employee");
-                return;
-            }
+            boolean isValidEmployee = employeeService.isValidEmployee(email);
+            log.info("User {} is valid employee: {}", email, isValidEmployee);
             
-            // Check if user is from Outreach department
-            if (!employeeService.isOutreachEmployee(email)) {
-                log.error("User {} is not from Outreach department", email);
-                redirectToFrontendWithError(response, "not_outreach");
-                return;
-            }
+            // Check if user is from Outreach department (only if valid employee)
+            boolean isOutreach = isValidEmployee && employeeService.isOutreachEmployee(email);
+            log.info("User {} is from Outreach department: {}", email, isOutreach);
             
-            // Create or update employee record
-            Employee employee = employeeService.createEmployeeIfNotExists(email, firstName, lastName);
-            log.info("Employee record processed for: {}", email);
-            
-            // Generate JWT token
+            // Generate JWT token for all users (employee or not)
             String token = jwtService.generateToken(email);
             log.info("JWT token generated for user: {}", email);
             
-            // Redirect to frontend with token
-            String redirectUrl = "http://localhost:5173/auth/callback?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
+            // Redirect to frontend with token and department info
+            // isOutreach will be true only if user is both valid employee AND from Outreach
+            // Non-employees will have isOutreach=false and be redirected to Welcome page
+            String redirectUrl = "http://localhost:5173/auth/callback?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8) + 
+                                "&isOutreach=" + String.valueOf(isOutreach);
+            log.info("Redirecting to: {}", redirectUrl);
             response.sendRedirect(redirectUrl);
             
         } catch (Exception e) {

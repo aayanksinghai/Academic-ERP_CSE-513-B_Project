@@ -61,6 +61,47 @@ public class AuthController {
         }
     }
     
+    @PostMapping("/user-info")
+    public ResponseEntity<?> getUserInfo(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        if (token == null) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Token is required");
+            return ResponseEntity.badRequest().body(error);
+        }
+        
+        try {
+            String email = jwtService.extractUsername(token);
+            if (email == null || !jwtService.isTokenValid(token, email)) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Invalid token");
+                return ResponseEntity.status(401).body(error);
+            }
+            
+            if (!employeeService.isValidEmployee(email)) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "User not found");
+                return ResponseEntity.status(404).body(error);
+            }
+            
+            Employee employee = employeeService.findByEmail(email).get();
+            boolean isOutreach = employeeService.isOutreachEmployee(email);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("email", email);
+            response.put("firstName", employee.getFirstName());
+            response.put("lastName", employee.getLastName());
+            response.put("department", employee.getDepartment());
+            response.put("isOutreach", isOutreach);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Failed to retrieve user info");
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+    
     @GetMapping("/user")
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal OAuth2User principal) {
         if (principal == null) {
